@@ -69,10 +69,11 @@ class Vgg19:
         self.conv5_4 = self.load_conv_layer(self.conv5_3, 512, 512, "conv5_4")
         self.pool5 = self.max_pool(self.conv5_4, 'pool5')
 
-        self.conv6 = self.new_conv_layer(self.pool5, 7, 512, 4096, "conv6")
-        self.conv7 = self.new_conv_layer(self.conv6, 1, 4096, 4096, "conv7")
-        self.pool6=self.avg_pool_end(self.conv7,"pool6") #average: we transform a matrix of size 2x2x4096 into a matrix of size 1x1x4096
-        self.fc8 = self.fc_layer(self.conv7, 4096, 64, "fc8")
+        self.conv6_1 = self.new_conv_layer(self.pool5, 7, 512, 4096, "conv6_1")
+        self.conv6_2 = self.new_conv_layer(self.conv6_1, 1, 4096, 4096, "conv6_2")
+        self.pool6=self.avg_pool_end(self.conv6_2,"pool6") #average: we transform a matrix of size 2x2x4096 into a matrix of size 1x1x4096
+
+        self.fc8 = self.fc_layer(self.pool6, 4096, 3, "fc8")
         self.prob = tf.nn.softmax(self.fc8, name="prob")
         self.data_dict = None
         print("Build done: There is {} parameters in the model".format(self.get_var_count()))
@@ -84,7 +85,7 @@ class Vgg19:
         return tf.nn.max_pool(bottom, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name)
 
     def avg_pool_end(self, bottom, name):
-        return tf.nn.avg_pool(bottom, ksize=[1,2,2,1], strides=[1,1,1,1], padding='VALID', name=name)
+        return tf.nn.avg_pool(bottom, ksize=[1,13,13,1], strides=[1,1,1,1], padding='VALID', name=name)
 
     def load_conv_layer(self, bottom, in_channels, out_channels, name):
         with tf.variable_scope(name):
@@ -97,12 +98,12 @@ class Vgg19:
 
     def new_conv_layer(self,bottom, filter_size, in_channels, out_channels, name):
         with tf.variable_scope(name):
-            filt= tf.truncated_normal([filter_size, filter_size, in_channels, out_channels], 0.0, 0.001)
-            conv_biases=tf.truncated_normal([out_channels], .0, .001)
+            filt= tf.truncated_normal([filter_size, filter_size, in_channels, out_channels], 0.0, 0.001,name=name+"_filters")
+            conv_biases=tf.truncated_normal([out_channels], .0, .001,name=name+"_biases")
             conv = tf.nn.conv2d(bottom, filt, [1, 1, 1, 1], padding='SAME')
             bias = tf.nn.bias_add(conv, conv_biases)
-            self.var_dict[(name + "_filters", 0)] = filt
-            self.var_dict[(name + "_biases", 1)] = bias
+            self.var_dict[(name, 0)] = filt
+            self.var_dict[(name, 1)] = conv_biases
             drop = tf.nn.dropout(bias, keep_prob=0.5)
             relu = tf.nn.relu(drop)
 
@@ -110,11 +111,12 @@ class Vgg19:
 
     def fc_layer(self, bottom, in_size, out_size, name): #A rajouter à var_dict
         with tf.variable_scope(name):
-            weights=tf.truncated_normal([in_size, out_size], 0.0, 0.001)
-            biases=tf.truncated_normal([out_size], .0, .001)
+            weights=tf.truncated_normal([in_size, out_size], 0.0, 0.001,name=name+"_filters")
+            bias=tf.truncated_normal([out_size], .0, .001,name=name+"_biases")
+            self.var_dict[(name, 0)] = weights
+            self.var_dict[(name, 1)] = bias
             x = tf.reshape(bottom, [-1, in_size])
-            fc = tf.nn.bias_add(tf.matmul(x, weights), biases)
-
+            fc = tf.nn.bias_add(tf.matmul(x, weights), bias)
             return fc
 
     def get_conv_var(self, filter_size, in_channels, out_channels, name):
