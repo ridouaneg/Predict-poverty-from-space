@@ -5,9 +5,9 @@ Simple tester for the vgg19_own_trainable
 import tensorflow as tf
 
 import vgg19_own_trainable as vgg19
-import utils2 as utils
+import utils
 
-img1 = utils.load_image("./daylight/rwanda/1.0.png")
+img1= utils.load_image_rwanda_zip("1.0.png")
 img1_true_result = [1 if i == 12 else 0 for i in range(64)]  # 1-hot result for tiger
 
 batch1 = img1.reshape((1, 400, 400, 3))
