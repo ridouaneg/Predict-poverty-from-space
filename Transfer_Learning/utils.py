@@ -10,7 +10,7 @@ import os
 # [height, width, depth]
 def load_image(path):
     # load image
-    img = skimage.io.imread(path)
+    img = skimage.io.imread(path)[:,:,3]
     img = img / 255.0
     assert (0 <= img).all() and (img <= 1.0).all()
     print(img[0]*255)
