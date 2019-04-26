@@ -1,3 +1,9 @@
+#Useless script
 import utils
+import numpy as np
+import time
 
-images=utils.load_images_from_zip('rwanda.zip')
+debut=time.time()
+A=utils.load_images("data/")
+fin=time.time()
+print(fin-debut)
