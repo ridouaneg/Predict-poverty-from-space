@@ -18,11 +18,11 @@ As an aside, we want two combine to good methods : gaussian processes and CNN. T
 # To-do list :
 
 Data :
-- download 300,000 daytime images (~20,000)
+- download 300,000 daytime images (~20,000) (x)
 
 Density estimation :
-- histogram
-- kde
+- histogram density estimation (x)
+- kernel density estimation (x)
 
 Regression models :
 - Parametric models : implement Lasso regression, bayesian regression
@@ -31,10 +31,16 @@ Regression models :
 
 Neural net :
 - implement conv layer (x)
-- train VGG for nightlight intensities prediction
-- train VGG for wealth prediction
-- semantic segmentation : implement FCN
+- train VGG for nightlight intensities prediction (x)
+- train VGG for wealth prediction (transfer learning) (x)
+- semantic segmentation : implement FCN (-)
+- implement gp layer (-)
+- visualization and interpretation (-)
+
+Semi-supervised learning :
+- classical techniques : VAT, Mean Teacher, etc.
+- SSDKL
 
 Optimization algorithm :
 - Evolutionary strategies : implement CMA-ES (x)
-- implement evolution strategies for neural net parameters learning
+- implement evolution strategies for neural net parameters learning (-)
